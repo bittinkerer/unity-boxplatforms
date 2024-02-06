@@ -1,0 +1,22 @@
+{
+  "name": "com.esteny.platforms",
+  "version": "1.0.0",
+  "displayName": "Box Platforms",
+  "description": "Scripts for dealing with box platforms",
+  "unity": "2019.1",
+  "unityRelease": "0b5",  
+  "dependencies": {
+    
+  },
+  "keywords": [
+    "platforms",
+    "box platforms",
+	"platform",
+	"platform collider"
+  ],
+  "author": {
+    "name": "Ernesto Pavon",
+    "email": "bittinkerer@gmail.com",
+    "url": "https://github.com/bittinkerer"
+  }
+}
