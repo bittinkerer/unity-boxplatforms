@@ -16,14 +16,14 @@ namespace Assets.Scripts.Generators
         private void OnEnable()
         {
             // If not the rightmost grouper then do nothing for now and return
-            var rightNeighbor = GetNeighbor(bc => bc.WorldRightPosition());
+            var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
             if (rightNeighbor != null)
             {
                 return;
             }
 
             // I am rightmost grouper, if no left neighbor then nothing to do so return
-            var leftNeighbor = GetNeighbor(bc => bc.WorldLeftPosition());
+            var leftNeighbor = GetNeighbor(ThisCollider.WorldLeftPosition());
             if (leftNeighbor == null)
             {
                 return;
@@ -37,7 +37,7 @@ namespace Assets.Scripts.Generators
         private BoxCollider GetLeftNeighborAndOwnBoxCollider()
         {
             // get left neighbor
-            var leftNeighbor = GetNeighbor(bc => bc.WorldLeftPosition());
+            var leftNeighbor = GetNeighbor(ThisCollider.WorldLeftPosition());
             if (leftNeighbor == null)
             {
                 return ThisCollider;
@@ -46,12 +46,11 @@ namespace Assets.Scripts.Generators
             return CombineColliders(ThisCollider, leftNeighbor.GetLeftNeighborAndOwnBoxCollider());
         }
 
-        private BoxColliderGroupGenerator GetNeighbor(Func<BoxCollider, Vector3> getPositionInCollider)
+        private BoxColliderGroupGenerator GetNeighbor(Vector3 colliderPosition)
         {
-            Vector3 collLeftPosition = getPositionInCollider(ThisCollider);
             var collSize = ThisCollider.BoxSize();
-            var boxSize = new Vector3(collSize.x, collSize.y, 1);
-            var grouper = Physics.OverlapBox(collLeftPosition, boxSize)
+            var boxSize = new Vector3(collSize.x, collSize.y/4, 1); // NOTE: y/4 so that vertical overlap must be bigger to group
+            var grouper = Physics.OverlapBox(colliderPosition, boxSize)
                             .Where(coll => coll.transform != this.transform && coll.GetComponent<BoxColliderGroupGenerator>() != null)
                             .Select(coll => coll.GetComponent<BoxColliderGroupGenerator>())
                             .FirstOrDefault();
@@ -80,13 +79,12 @@ namespace Assets.Scripts.Generators
                 return;
             }
 
-            var thisCollider = this.gameObject.GetComponent<BoxCollider>();
             Gizmos.color = new Color(1f, 0, 0, 0.65f);
             
-            var collSize = thisCollider.BoxSize();
-            var boxSize = new Vector3(collSize.x, collSize.y, 1);
-            Gizmos.DrawCube(thisCollider.WorldLeftPosition(), boxSize);
-            Gizmos.DrawCube(thisCollider.WorldRightPosition(), boxSize);
+            var collSize = ThisCollider.BoxSize();
+            var boxSize = new Vector3(collSize.x, collSize.y/4, 1);
+            Gizmos.DrawCube(ThisCollider.WorldLeftPosition(), boxSize);
+            Gizmos.DrawCube(ThisCollider.WorldRightPosition(), boxSize);
         }
 
     }
