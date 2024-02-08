@@ -2,7 +2,9 @@
     "name": "_BoxPlatforms",
     "rootNamespace": "",
     "references": [
-        "GUID:950a5a989d74f114d99f2262765a2521"
+        "GUID:950a5a989d74f114d99f2262765a2521",
+        "GUID:077b1addbc4e11f479561055ea7f976c",
+        "GUID:5e95f0768a6f5a143b06f6581af40f9f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
