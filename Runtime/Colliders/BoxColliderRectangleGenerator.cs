@@ -8,6 +8,7 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
     public class BoxColliderRectangleGenerator : MonoBehaviour
     {
         [SerializeField] private bool _drawGizmos;
+        [SerializeField][Range(0, 1)] private float _removalBoxSize;
 
         public BoxCollider ThisCollider =>
             this.gameObject.GetComponent<BoxCollider>();
@@ -31,7 +32,20 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             float horizontalSize = GetLeftNeighborAndOwnZSize();
             float verticalSize = GetBottomNeighborAndOwnYSize();
 
-            var resultCollider = CreateCollider(ThisCollider, new Vector3(ThisCollider.size.x, verticalSize, horizontalSize));
+            Vector3 center = new(
+                    ThisCollider.bounds.center.x,
+                    ThisCollider.transform.position.y + ThisCollider.size.y / 2 - verticalSize / 2,
+                    ThisCollider.WorldRightPosition().z - horizontalSize / 2
+                );
+            Vector3 size = new(
+                ThisCollider.size.x,
+                verticalSize,
+                horizontalSize
+                );
+            DestroyColliders(
+                center,
+                size * _removalBoxSize);
+            CreateCollider(this.transform, center, size);
         }
 
         private float GetLeftNeighborAndOwnZSize()
@@ -78,18 +92,22 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             return grouper;
         }
 
-        private BoxCollider CreateCollider(BoxCollider topRight, Vector3 size)
+        private void DestroyColliders(Vector3 center, Vector3 size)
         {
-            var resultCollider = topRight.gameObject.AddComponent<BoxCollider>();
-            var resultColliderWorldSize = 
-                new Vector3(topRight.size.x, size.y, size.z);
-            var resultColliderWorldCenter = 
-                new Vector3(
-                    topRight.bounds.center.x, 
-                    (topRight.transform.position.y + topRight.size.y/2) - size.y/2, 
-                    topRight.WorldRightPosition().z - size.z/2);
-            resultCollider.center = topRight.transform.worldToLocalMatrix.MultiplyPoint(resultColliderWorldCenter);
-            resultCollider.size = topRight.transform.worldToLocalMatrix.MultiplyVector(resultColliderWorldSize);
+            var colls = Physics.OverlapBox(center, size);
+            foreach (var coll in colls)
+            {
+                Destroy(coll);
+            }
+
+        }
+
+        private BoxCollider CreateCollider(Transform topRightTransform, Vector3 center, Vector3 size)
+        {
+            var resultCollider = topRightTransform.gameObject.AddComponent<BoxCollider>();
+            
+            resultCollider.center = topRightTransform.worldToLocalMatrix.MultiplyPoint(center);
+            resultCollider.size = topRightTransform.worldToLocalMatrix.MultiplyVector(size);
             return resultCollider;
         }
 
