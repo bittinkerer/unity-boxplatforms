@@ -66,18 +66,6 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             return result;
         }
 
-        private BoxCollider GetLeftNeighborAndOwnBoxCollider()
-        {
-            // get left neighbor
-            var leftNeighbor = GetNeighbor(ThisCollider.WorldLeftPosition());
-            if (leftNeighbor == null)
-            {
-                return ThisCollider;
-            }
-
-            return CombineColliders(ThisCollider, leftNeighbor.GetLeftNeighborAndOwnBoxCollider());
-        }
-
         private BoxColliderRectangleGenerator GetNeighbor(Vector3 colliderPosition)
         {
             var collSize = ThisCollider.BoxSize();
@@ -90,22 +78,6 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             return grouper;
         }
 
-        private BoxCollider CombineColliders(BoxCollider right, BoxCollider left)
-        {
-            var resultCollider = right.gameObject.AddComponent<BoxCollider>();
-            var resultColliderWorldSize = 
-                new Vector3(right.bounds.size.x, right.bounds.size.y, right.bounds.size.z + left.bounds.size.z);
-            var resultColliderWorldCenter = 
-                new Vector3(right.bounds.center.x, right.bounds.center.y, left.WorldLeftPosition().z + resultColliderWorldSize.z / 2);
-            resultCollider.center = right.transform.worldToLocalMatrix.MultiplyPoint(resultColliderWorldCenter);
-            resultCollider.size = right.transform.worldToLocalMatrix.MultiplyVector(resultColliderWorldSize);
-
-            Destroy(right);
-            Destroy(left);
-
-            return resultCollider;
-        }
-
         private BoxCollider CreateCollider(BoxCollider topRight, Vector3 size)
         {
             var resultCollider = topRight.gameObject.AddComponent<BoxCollider>();
@@ -114,10 +86,10 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             var resultColliderWorldCenter = 
                 new Vector3(
                     topRight.bounds.center.x, 
-                    (topRight.transform.position.y - topRight.size.y/2) - size.y/2, 
+                    (topRight.transform.position.y + topRight.size.y/2) - size.y/2, 
                     topRight.WorldRightPosition().z - size.z/2);
-            resultCollider.center = resultColliderWorldCenter;
-            resultCollider.size = resultColliderWorldSize;
+            resultCollider.center = topRight.transform.worldToLocalMatrix.MultiplyPoint(resultColliderWorldCenter);
+            resultCollider.size = topRight.transform.worldToLocalMatrix.MultiplyVector(resultColliderWorldSize);
             return resultCollider;
         }
 
