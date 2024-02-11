@@ -36,24 +36,34 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
 
         private float GetLeftNeighborAndOwnZSize()
         {
+            float result;
             var leftNeighbor = GetNeighbor(ThisCollider.WorldLeftPosition());
             if (leftNeighbor == null)
             {
-                return ThisCollider.size.z;
+                result = ThisCollider.size.z;
             }
-
-            return ThisCollider.size.z + leftNeighbor.GetLeftNeighborAndOwnZSize();
+            else
+            {
+                result = ThisCollider.size.z + leftNeighbor.GetLeftNeighborAndOwnZSize();
+            }
+            Destroy(ThisCollider);
+            return result;
         }
 
         private float GetBottomNeighborAndOwnYSize()
         {
+            float result;
             var bottomNeighbor = GetNeighbor(ThisCollider.WorldBottomPosition());
             if (bottomNeighbor == null)
             {
-                return ThisCollider.size.y;
+                result = ThisCollider.size.y;
             }
-
-            return ThisCollider.size.y + bottomNeighbor.GetBottomNeighborAndOwnYSize();
+            else
+            {
+                result = ThisCollider.size.y + bottomNeighbor.GetBottomNeighborAndOwnYSize();
+            }
+            Destroy(ThisCollider);
+            return result;
         }
 
         private BoxCollider GetLeftNeighborAndOwnBoxCollider()
@@ -71,7 +81,7 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
         private BoxColliderRectangleGenerator GetNeighbor(Vector3 colliderPosition)
         {
             var collSize = ThisCollider.BoxSize();
-            var boxSize = new Vector3(collSize.x, collSize.y / 4, 1); // NOTE: y/4 so that vertical overlap must be bigger to group
+            var boxSize = new Vector3(collSize.x, collSize.y / 4, collSize.z / 4); // NOTE: y/4 so that vertical overlap must be bigger to group
             var grouper = Physics.OverlapBox(colliderPosition, boxSize)
                             .Where(coll => coll.transform != this.transform && coll.GetComponent<BoxColliderRectangleGenerator>() != null)
                             .Select(coll => coll.GetComponent<BoxColliderRectangleGenerator>())
@@ -104,8 +114,10 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             var resultColliderWorldCenter = 
                 new Vector3(
                     topRight.bounds.center.x, 
-                    topRight.WorldTopPosition().y - size.y/2, 
+                    (topRight.transform.position.y - topRight.size.y/2) - size.y/2, 
                     topRight.WorldRightPosition().z - size.z/2);
+            resultCollider.center = resultColliderWorldCenter;
+            resultCollider.size = resultColliderWorldSize;
             return resultCollider;
         }
 
@@ -119,9 +131,11 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             Gizmos.color = new Color(1f, 0, 0, 0.65f);
 
             var collSize = ThisCollider.BoxSize();
-            var boxSize = new Vector3(collSize.x, collSize.y / 4, 1);
+            var boxSize = new Vector3(collSize.x, collSize.y / 4, collSize.z/4);
             Gizmos.DrawCube(ThisCollider.WorldLeftPosition(), boxSize);
             Gizmos.DrawCube(ThisCollider.WorldRightPosition(), boxSize);
+            Gizmos.DrawCube(ThisCollider.WorldTopPosition(), boxSize);
+            Gizmos.DrawCube(ThisCollider.WorldBottomPosition(), boxSize);
         }
     }
 }
