@@ -29,8 +29,13 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
                 return;
             }
 
-            float horizontalSize = GetLeftNeighborAndOwnZSize();
-            float verticalSize = GetBottomNeighborAndOwnYSize();
+            var horizontalBounds = GetOwnAndLeftHorizontalBounds();
+            float horizontalSize = horizontalBounds.right - horizontalBounds.left;
+            var verticalBounds = GetOwnAndBottomVerticalBounds();
+            float verticalSize = verticalBounds.top - verticalBounds.bottom;
+
+            //float horizontalSize = GetLeftNeighborAndOwnZSize();
+            //float verticalSize = GetBottomNeighborAndOwnYSize();
 
             Vector3 center = new(
                     ThisCollider.bounds.center.x,
@@ -46,6 +51,46 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
                 center,
                 size * _removalBoxSize);
             CreateCollider(this.transform, center, size);
+        }
+
+        private (float left, float right) GetOwnAndLeftHorizontalBounds()
+        {
+            (float left, float right) result;
+            var leftNeighbor = GetNeighbor(ThisCollider.WorldLeftPosition());
+            if (leftNeighbor == null)
+            {
+                result = (ThisCollider.WorldLeftPosition().z, ThisCollider.WorldRightPosition().z);
+            }
+            else
+            {
+                result =
+                    (
+                        leftNeighbor.GetOwnAndLeftHorizontalBounds().left,
+                        ThisCollider.WorldRightPosition().z
+                    );
+            }
+            Destroy(ThisCollider);
+            return result;
+        }
+
+        private (float top, float bottom) GetOwnAndBottomVerticalBounds()
+        {
+            (float top, float bottom) result;
+            var bottomNeighbor = GetNeighbor(ThisCollider.WorldBottomPosition());
+            if (bottomNeighbor == null)
+            {
+                result = (ThisCollider.WorldTopPosition().y, ThisCollider.WorldBottomPosition().y);
+            }
+            else
+            {
+                result =
+                    (
+                        ThisCollider.WorldTopPosition().y,
+                        bottomNeighbor.GetOwnAndBottomVerticalBounds().bottom
+                    );
+            }
+            Destroy(ThisCollider);
+            return result;
         }
 
         private float GetLeftNeighborAndOwnZSize()
