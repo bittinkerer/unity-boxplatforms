@@ -39,7 +39,7 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
 
             Vector3 center = new(
                     ThisCollider.bounds.center.x,
-                    ThisCollider.transform.position.y + ThisCollider.size.y / 2 - verticalSize / 2,
+                    ThisCollider.WorldTopPosition().y - verticalSize / 2,
                     ThisCollider.WorldRightPosition().z - horizontalSize / 2
                 );
             Vector3 size = new(
