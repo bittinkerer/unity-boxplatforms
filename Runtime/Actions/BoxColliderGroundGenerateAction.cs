@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace Packages.com.esteny.platforms.Runtime.Actions
 {
+    /// <summary>
+    /// NOTE: This works on the underlying box-collider and assumes this box-collider already is of appropriate size 
+    /// In other words, it does NOT try to combine box-colliders because it assumes at this step it's already been done.
+    /// </summary>
     public class BoxColliderGroundGenerateAction : BaseGameObjectAction
     {
         [SerializeField] private bool _drawGizmos;
@@ -29,6 +33,7 @@ namespace Packages.com.esteny.platforms.Runtime.Actions
             {
                 layer = LayerMask.NameToLayer(_groundLayer)
             };
+            groundGO.transform.SetParent(baseCollider.transform, false);
             var groundCollider = groundGO.AddComponent<BoxCollider>();
 
             // calc size
