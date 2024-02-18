@@ -15,6 +15,12 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
 
         private void OnEnable()
         {
+            if(ThisCollider == null)
+            {
+                Debug.LogError($"{this.name}.{nameof(BoxColliderRectangleGenerator)} needs a BoxCollider component to work with. Aborting.");
+                return;
+            }
+
             // If not the rightmost grouper then do nothing for now and return
             var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
             if (rightNeighbor != null)

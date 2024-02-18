@@ -1,5 +1,5 @@
-﻿using Packages.Estenis.UnityExts_;
-using System;
+﻿using Packages.com.esteny.platforms.Runtime.Colliders;
+using Packages.Estenis.UnityExts_;
 using System.Linq;
 using UnityEngine;
 
@@ -15,6 +15,12 @@ namespace Assets.Scripts.Generators
 
         private void OnEnable()
         {
+            if (ThisCollider == null)
+            {
+                Debug.LogError($"{this.name}.{nameof(BoxColliderRectangleGenerator)} needs a BoxCollider component to work with. Aborting.");
+                return;
+            }
+
             // If not the rightmost grouper then do nothing for now and return
             var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
             if (rightNeighbor != null)
