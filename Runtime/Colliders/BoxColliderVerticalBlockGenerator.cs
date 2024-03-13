@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Packages.com.esteny.platforms.Runtime.Colliders
 {
-    public class BoxColliderRectangleGenerator : MonoBehaviour
+    public class BoxColliderVerticalBlockGenerator : MonoBehaviour
     {
         [SerializeField] private bool _drawGizmos;
         [SerializeField][Range(0, 1)] private float _removalBoxSize;
@@ -17,14 +17,7 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
         {
             if(ThisCollider == null)
             {
-                Debug.LogError($"{this.name}.{nameof(BoxColliderRectangleGenerator)} needs a BoxCollider component to work with. Aborting.");
-                return;
-            }
-
-            // If not the rightmost grouper then do nothing for now and return
-            var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
-            if (rightNeighbor != null)
-            {
+                Debug.LogError($"{this.name}.{nameof(BoxColliderVerticalBlockGenerator)} needs a BoxCollider component to work with. Aborting.");
                 return;
             }
 
@@ -32,6 +25,14 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             var topNeighbor = GetNeighbor(ThisCollider.WorldTopPosition());
             if (topNeighbor != null)
             {
+                return;
+            }
+
+            // If not the rightmost grouper then do nothing for now and return
+            var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
+            if (rightNeighbor != null)
+            {
+                var rightTopNeighbor = GetNeighbor(rightNeighbor.GetComponent<BoxCollider>().WorldTopPosition());
                 return;
             }
 
@@ -54,6 +55,11 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
                 center,
                 size * _removalBoxSize);
             CreateCollider(this.transform, center, size);
+        }
+
+        private (int verticalIndex, int verticalBlocks) GetVerticalBounds(BoxCollider topCell)
+        {
+            return (1, 1);
         }
 
         private (float left, float right) GetOwnAndLeftHorizontalBounds()
@@ -128,13 +134,13 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             return result;
         }
 
-        private BoxColliderRectangleGenerator GetNeighbor(Vector3 colliderPosition)
+        private BoxColliderVerticalBlockGenerator GetNeighbor(Vector3 colliderPosition)
         {
             var collSize = ThisCollider.BoxSize();
             var boxSize = new Vector3(collSize.x, collSize.y / 4, collSize.z / 4); // NOTE: y/4 so that vertical overlap must be bigger to group
             var grouper = Physics.OverlapBox(colliderPosition, boxSize)
-                            .Where(coll => coll.transform != this.transform && coll.GetComponent<BoxColliderRectangleGenerator>() != null)
-                            .Select(coll => coll.GetComponent<BoxColliderRectangleGenerator>())
+                            .Where(coll => coll.transform != this.transform && coll.GetComponent<BoxColliderVerticalBlockGenerator>() != null)
+                            .Select(coll => coll.GetComponent<BoxColliderVerticalBlockGenerator>())
                             .FirstOrDefault();
 
             return grouper;
