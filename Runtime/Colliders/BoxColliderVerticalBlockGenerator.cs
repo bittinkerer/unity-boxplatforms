@@ -10,6 +10,13 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
         [SerializeField] private bool _drawGizmos;
         [SerializeField][Range(0, 1)] private float _removalBoxSize;
 
+        private int _columnBlocks = -1;
+
+        public int ColumnBlocks => 
+            _columnBlocks >= 0 
+            ? _columnBlocks 
+            : (_columnBlocks = GetColumnBlocks(this.GetComponent<BoxCollider>()));
+
         public BoxCollider ThisCollider =>
             this.gameObject.GetComponent<BoxCollider>();
 
@@ -27,6 +34,9 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             {
                 return;
             }
+
+            // get vertical bounds
+
 
             // If not the rightmost grouper then do nothing for now and return
             var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
@@ -55,6 +65,22 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
                 center,
                 size * _removalBoxSize);
             CreateCollider(this.transform, center, size);
+        }
+
+        private int GetColumnBlocks(BoxCollider col)
+        {
+            if(col == null)
+            {
+                return 0;
+            }
+
+            var topNeighbor = GetNeighbor(col.WorldTopPosition());
+            if(topNeighbor != null)
+            {
+                return 0;
+            }
+
+            return 1 + GetColumnBlocks(GetNeighbor(col.WorldBottomPosition()).GetComponent<BoxCollider>());
         }
 
         private (int verticalIndex, int verticalBlocks) GetVerticalBounds(BoxCollider topCell)
