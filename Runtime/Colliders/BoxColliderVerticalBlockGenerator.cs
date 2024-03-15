@@ -12,6 +12,7 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
 
         private int _columnBlocks = -1;
 
+        public bool IsTopOfBlock => GetNeighbor(ThisCollider.WorldTopPosition()) == null;
         public int ColumnBlocks => 
             _columnBlocks >= 0 
             ? _columnBlocks 
@@ -29,22 +30,21 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             }
 
             // If not the topmost grouper then do nothing for now and return
-            var topNeighbor = GetNeighbor(ThisCollider.WorldTopPosition());
-            if (topNeighbor != null)
+            if (!IsTopOfBlock)
             {
                 return;
             }
 
-            // get vertical bounds
-
-
-            // If not the rightmost grouper then do nothing for now and return
+            // 
             var rightNeighbor = GetNeighbor(ThisCollider.WorldRightPosition());
-            if (rightNeighbor != null)
+            if (rightNeighbor != null && (rightNeighbor.IsTopOfBlock && rightNeighbor.ColumnBlocks == this.ColumnBlocks))
             {
-                var rightTopNeighbor = GetNeighbor(rightNeighbor.GetComponent<BoxCollider>().WorldTopPosition());
                 return;
             }
+
+            // I am right-most top of block collider, consolidate myself and column-blocks to left matching me
+
+
 
             var (left, right) = GetOwnAndLeftHorizontalBounds();
             float horizontalSize = right - left;
@@ -74,19 +74,9 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
                 return 0;
             }
 
-            var topNeighbor = GetNeighbor(col.WorldTopPosition());
-            if(topNeighbor != null)
-            {
-                return 0;
-            }
-
-            return 1 + GetColumnBlocks(GetNeighbor(col.WorldBottomPosition()).GetComponent<BoxCollider>());
+            return 1 + GetColumnBlocks(GetNeighbor(col.WorldBottomPosition())?.GetComponent<BoxCollider>());
         }
 
-        private (int verticalIndex, int verticalBlocks) GetVerticalBounds(BoxCollider topCell)
-        {
-            return (1, 1);
-        }
 
         private (float left, float right) GetOwnAndLeftHorizontalBounds()
         {
