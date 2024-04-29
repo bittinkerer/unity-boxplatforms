@@ -138,6 +138,8 @@ namespace Packages.com.esteny.platforms.Runtime.Colliders
             var colls = Physics.OverlapBox(center, size);
             foreach (var coll in colls)
             {
+                if (coll.gameObject.GetComponent<BoxColliderVerticalBlockGenerator>() == null)
+                    continue;
                 Destroy(coll);
             }
         }
